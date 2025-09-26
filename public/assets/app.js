@@ -251,11 +251,30 @@ if (dlBtn) {
     }
     try {
       dlBtn.disabled = true; dlBtn.textContent = 'Generating...';
-      // Capture the card exactly as seen, keep transparent background to preserve rounded corners
-      const canvas = await html2canvas(card, { backgroundColor: null, scale: 2, useCORS: true });
+      // Capture with dark background to avoid washed-out look from semi-transparent layers
+      const scale = 2;
+      const base = await html2canvas(card, { backgroundColor: '#07090F', scale, useCORS: true });
+
+      // Clip to rounded corners to keep the same shape of the card
+      const out = document.createElement('canvas');
+      out.width = base.width; out.height = base.height;
+      const ctx = out.getContext('2d');
+      const radiusCss = parseFloat(getComputedStyle(card).borderRadius) || 16; // px
+      const r = Math.min(radiusCss * scale, Math.min(out.width, out.height) / 2);
+      const w = out.width, h = out.height, x = 0, y = 0;
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.arcTo(x + w, y, x + w, y + h, r);
+      ctx.arcTo(x + w, y + h, x, y + h, r);
+      ctx.arcTo(x, y + h, x, y, r);
+      ctx.arcTo(x, y, x + w, y, r);
+      ctx.closePath();
+      ctx.clip();
+      ctx.drawImage(base, 0, 0);
+
       const link = document.createElement('a');
       link.download = 'aster-allocation.png';
-      link.href = canvas.toDataURL('image/png');
+      link.href = out.toDataURL('image/png');
       link.click();
     } catch (err) {
       console.error(err);
