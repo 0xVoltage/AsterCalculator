@@ -1,0 +1,70 @@
+:root{
+  --glass: rgba(255,255,255,0.04);
+}
+
+/* Base */
+*{ box-sizing: border-box; }
+html,body{ scroll-behavior:smooth; }
+
+/* shadcn-like primitives */
+.shdn-btn{
+  --ring: rgba(42,127,255,.45);
+  padding: .55rem .9rem; border-radius: .8rem; font-weight:600; font-family: Inter,system-ui,sans-serif;
+  border: 1px solid rgba(255,255,255,.12);
+  background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+  color: #fff; transition: all .2s ease; display:inline-flex; align-items:center; gap:.5rem;
+}
+.shdn-btn:hover{ box-shadow:0 0 0 3px var(--ring) inset; transform: translateY(-1px); }
+.shdn-btn:active{ transform: translateY(0); }
+
+.shdn-btn-primary{
+  background: linear-gradient(180deg, #2A7FFF, #094FBB);
+  border-color: rgba(42,127,255,.6);
+  box-shadow: 0 10px 30px rgba(42,127,255,.25);
+}
+.shdn-btn-primary:hover{ filter:brightness(1.05); }
+
+.shdn-btn-danger{
+  background: linear-gradient(180deg, #ef4444, #b91c1c);
+  border-color: rgba(239,68,68,.6);
+  box-shadow: 0 10px 30px rgba(239,68,68,.25);
+}
+.shdn-btn-danger:hover{ filter:brightness(1.05); }
+
+/* Success (green) */
+.shdn-btn-success{
+  background: linear-gradient(180deg, #22c55e, #15803d);
+  border-color: rgba(34,197,94,.6);
+  box-shadow: 0 10px 30px rgba(34,197,94,.25);
+}
+.shdn-btn-success:hover{ filter:brightness(1.05); }
+
+.shdn-input{
+  width: 100%;
+  background: var(--glass);
+  border: 1px solid rgba(255,255,255,.12);
+  padding: .7rem .9rem; border-radius: .75rem; outline: none; color: #fff;
+}
+.shdn-input:focus{ box-shadow: 0 0 0 3px rgba(49,248,165,.25); border-color: rgba(49,248,165,.45); }
+
+.label{ display:block; margin-bottom:.45rem; color: rgba(255,255,255,.75); font-size:.85rem; }
+
+.subtle{ color: rgba(255,255,255,.55); font-size:.85rem; }
+.value{ font-weight: 700; font-size: 1.05rem; letter-spacing:.2px; }
+
+.shdn-chip{
+  display:inline-flex; align-items:center; gap:.4rem; padding:.35rem .6rem;
+  border-radius:.65rem; border:1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.04);
+}
+
+/* Toggle buttons */
+.toggle-btn{ padding:.40rem .75rem; border-radius:.70rem; font-weight:600; color:#fff; background:transparent; border:1px solid transparent; transition:all .15s ease; }
+.toggle-btn:hover{ background: rgba(255,255,255,.06); }
+.toggle-btn.active{ background: linear-gradient(180deg,#2A7FFF,#094FBB); border-color: rgba(42,127,255,.5); box-shadow: 0 6px 18px rgba(42,127,255,.25); }
+
+/* Gate animation base (enhanced via anime.js) */
+#gate[hidden]{ display:none; }
+#gate.hidden{ display:none; }
+
+/* Utility for a neon text optional glow */
+.neon-text{ text-shadow: 0 0 10px rgba(49,248,165,.5), 0 0 30px rgba(42,127,255,.35); }

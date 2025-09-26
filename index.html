@@ -1,0 +1,215 @@
+﻿<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AsterBot Calculator • AsterDEX</title>
+    <meta name="description" content="Aster airdrop calculator • Get +50% RH Points with our team" />
+
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              bg: { DEFAULT: '#07090F', muted: '#0B1220' },
+              primary: { DEFAULT: '#60A5FA', 500: '#2A7FFF' },
+              neon: '#31F8A5',
+              card: '#0E1526',
+            },
+            boxShadow: {
+              glow: '0 0 20px rgba(49, 248, 165, 0.3), 0 0 40px rgba(42,127,255,.2)',
+            },
+            fontFamily: {
+              display: ['Orbitron','system-ui','sans-serif'],
+              sans: ['Inter','system-ui','sans-serif'],
+            }
+          }
+        }
+      }
+    </script>
+
+    <!-- Using CDN without SRI to avoid hash mismatches in dev -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <!-- html2canvas for PNG export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <link rel="stylesheet" href="assets/style.css" />
+  </head>
+  <body class="bg-bg text-white min-h-screen">
+    <!-- Top sticky referral banner -->
+    <div class="sticky top-0 z-40 w-full backdrop-blur bg-bg/60 border-b border-white/10">
+      <div class="max-w-6xl mx-auto px-4 py-2 flex items-center justify-between">
+        <p class="text-sm text-white/80">Create your AsterDEX account and get +50% RH Points</p>
+        <a href="https://www.asterdex.com/en/referral/c67143" target="_blank" rel="noopener" class="shdn-btn shdn-btn-success">Create account (+50%)</a>
+      </div>
+    </div>
+
+    <!-- Gated referral modal overlay (shows by default) -->
+    <div id="gate" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+      <div class="relative w-[92%] max-w-xl rounded-2xl border border-white/10 bg-gradient-to-b from-card/90 to-bg/90 p-6 shadow-glow">
+        <div class="absolute -inset-px rounded-2xl bg-[radial-gradient(60%_60%_at_50%_0%,rgba(96,165,250,.25),rgba(49,248,165,.06)_60%,transparent_80%)] pointer-events-none"></div>
+        <div class="space-y-4">
+          <h2 class="font-display text-2xl">Join AsterDEX</h2>
+          <p class="text-white/80 leading-relaxed">Create your account to start earning RH Points and qualify for the airdrop</p>
+          <p class="text-white/90">Join our team on Aster and get a Team Boost of <span class="text-neon font-semibold">x1.5</span> on all your earnings!</p>
+          <div class="pt-2">
+            <a id="cta-join" href="https://www.asterdex.com/en/referral/c67143" target="_blank" rel="noopener" class="shdn-btn shdn-btn-primary w-full text-center">
+              Join AsterDEX Now +50% Boost
+            </a>
+            <button id="cta-skip" type="button" class="mt-2 shdn-btn shdn-btn-danger w-full text-center">No thanks — continue without +50% bonus</button>
+          </div>
+          <p class="text-xs text-white/60">By clicking the button above, the site will unlock.</p>
+        </div>
+      </div>
+    </div>
+
+    <main class="relative">
+      <div aria-hidden class="pointer-events-none select-none fixed inset-0 -z-10">
+        <div class="absolute -top-40 left-1/2 -translate-x-1/2 w-[1200px] h-[1200px] rounded-full blur-3xl opacity-30 bg-[conic-gradient(from_0deg,rgba(42,127,255,.35),rgba(49,248,165,.3),transparent)]"></div>
+      </div>
+
+      <section class="max-w-6xl mx-auto px-4 pt-10 pb-20">
+        <header class="flex items-center justify-between gap-4">
+          <div>
+            <h1 class="font-display text-3xl md:text-4xl tracking-tight">AsterBot Calculator</h1>
+            <p class="text-white/70 mt-1">Estimate your Aster airdrop allocation</p>
+          </div>
+          <div class="hidden md:block">
+            <a href="https://www.asterdex.com/en/referral/c67143" target="_blank" rel="noopener" class="shdn-btn shdn-btn-success">+50% Team Boost</a>
+          </div>
+        </header>
+
+        <div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <!-- Inputs -->
+          <div class="rounded-2xl border border-white/10 bg-card/60 p-6">
+            <div class="grid grid-cols-2 gap-4">
+              <label class="col-span-2" id="pointsWrap">
+                <span class="label">My RH Points</span>
+                <input id="myPoints" type="text" inputmode="numeric" pattern="[0-9,]*" value="1,000,000" class="shdn-input" placeholder="e.g., 1,000,000" />
+              </label>
+              <label class="col-span-2 hidden" id="shareWrap">
+                <span class="label">My Current Share (%)</span>
+                <input id="myShare" type="text" inputmode="decimal" class="shdn-input" placeholder="e.g., 0.00148686" />
+              </label>
+              <label class="epoch-field">
+                <span class="label">Epoch 1 (Billions)</span>
+                <input id="e1" type="number" class="shdn-input" value="4.66" readonly />
+              </label>
+              <label class="epoch-field">
+                <span class="label">Epoch 2 (Billions)</span>
+                <input id="e2" type="number" class="shdn-input" value="11.51" readonly />
+              </label>
+              <label class="epoch-field">
+                <span class="label">Epoch 3 (Billions)</span>
+                <input id="e3" type="number" step="0.01" class="shdn-input" placeholder="e.g., 250" value="250" />
+              </label>
+              <label class="epoch-field">
+                <span class="label">Epoch 4 (Billions)</span>
+                <input id="e4" type="number" step="0.01" class="shdn-input" placeholder="e.g., 250" value="250" />
+              </label>
+              <label class="col-span-2">
+                <span class="label">Token price (USD)</span>
+                <input id="price" type="text" inputmode="decimal" class="shdn-input" placeholder="e.g., 2.00" value="2" />
+              </label>
+            </div>
+
+            <div id="epochsNote" class="text-xs text-white/60 mt-3">
+              Epoch 3 & 4 default to 250B (editable). Example: 100 = 100 billion points.
+            </div>
+
+            <!-- Type toggle -->
+            <div class="mt-4 flex items-center gap-3">
+              <span class="subtle">Type:</span>
+              <div class="inline-flex rounded-xl border border-white/10 bg-white/5 p-1">
+                <button id="btnTypeTotal" class="toggle-btn active" type="button">4% TOTAL</button>
+                <button id="btnTypeEpoch" class="toggle-btn" type="button">1% per EPOCH</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Result Card -->
+          <div id="resultCard" class="relative rounded-2xl border border-white/10 bg-gradient-to-br from-card/70 to-bg/60 p-6 overflow-hidden">
+            <div aria-hidden class="absolute inset-0 bg-[url('Images/Results/1.webp')] bg-cover bg-right opacity-20 hidden md:block pointer-events-none"></div>
+            <div class="relative space-y-6">
+              <div>
+                <p class="text-white/70">Your allocation</p>
+                <div class="mt-1 flex items-center gap-3">
+                  <img src="Images/Results/AsterLogo.png" alt="Aster Logo" class="w-9 h-9 rounded-full ring-1 ring-white/10 bg-white/5 object-contain p-1" onerror="this.onerror=null; this.src='Images/AsterLogo.png'">
+                  <div class="font-display text-4xl md:text-5xl">
+                    <span id="tokensOut">0</span>
+                    <span class="text-white/70 text-2xl md:text-3xl align-middle">ASTER</span>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <div class="font-display text-5xl md:text-6xl text-neon drop-shadow">$<span id="usdOut">0</span></div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-6 pt-2">
+                <div id="totalPointsBox">
+                  <div class="subtle">Total RH Points</div>
+                  <div id="totalPointsOut" class="value">0</div>
+                </div>
+                <div id="myPointsBox">
+                  <div class="subtle">My RH Points</div>
+                  <div id="myPointsOut" class="value">0</div>
+                </div>
+                <div id="shareBox" class="hidden col-span-2">
+                  <div class="subtle">My Current Share</div>
+                  <div id="shareOut" class="value">0%</div>
+                </div>
+                <div>
+                  <div class="subtle">Aster Price</div>
+                  <div id="priceOut" class="value">$0.00</div>
+                </div>
+                <div>
+                  <div class="subtle">Type</div>
+                  <div id="typeOut" class="value">4% (TOTAL)</div>
+                </div>
+              </div>
+
+              <div id="formulaText" class="pt-2 text-xs text-white/50">Formula: 320,000,000 tokens × (My RH Points / Total points across all 4 Epochs)</div>
+              <div class="text-xs text-white/60">by: AsterBot_Trade</div>
+
+              <div class="pt-4" data-html2canvas-ignore="true">
+                <button id="btnDownload" class="shdn-btn shdn-btn-primary">Download PNG</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Download section -->
+        <section class="mt-14 grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
+          <div class="lg:col-span-2 rounded-2xl border border-white/10 bg-card/60 p-6">
+            <h3 class="font-display text-2xl">AsterBot — Volume‑Optimized Trading Bot</h3>
+            <p class="text-white/70 mt-1">Automated 24/7 execution tuned to maximize your allocation for Aster’s airdrop.</p>
+            <ul class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-2 text-sm text-white/80">
+              <li class="shdn-chip">Continuous automation</li>
+              <li class="shdn-chip">Volume-first strategies</li>
+              <li class="shdn-chip">Adjustable risk profiles</li>
+              <li class="shdn-chip">Detailed reporting</li>
+            </ul>
+          </div>
+          <div class="rounded-2xl border border-white/10 bg-gradient-to-b from-card/70 to-bg/70 p-6 flex flex-col justify-between">
+            <div>
+              <div class="text-white/70 text-sm">Version: <span class="text-white">1.2.0</span></div>
+              <div class="text-white/70 text-sm">Size: <span class="text-white">3MB</span></div>
+            </div>
+            <div class="mt-4 space-y-2">
+              <a href="https://github.com/0xVoltage/AsterBot" target="_blank" rel="noopener" class="shdn-btn shdn-btn-primary w-full text-center">Download Bot</a>
+              <a href="https://github.com/0xVoltage/AsterBot" target="_blank" rel="noopener" class="shdn-btn w-full text-center">Download from GitHub — v1.2.0 • 3MB</a>
+            </div>
+          </div>
+        </section>
+
+        <footer class="mt-16 text-center text-xs text-white/50">© 2025 AsterBot • by @AsterBot_trade</footer>
+      </section>
+    </main>
+
+    <script src="assets/app.js"></script>
+  </body>
+  </html>
